@@ -79,11 +79,20 @@ The application is configured for deployment on Replit with autoscaling:
 
 The build process compiles both frontend (Vite) and backend (ESBuild) into a single deployment package in the `dist` directory.
 
+## Recent Changes
+
+✓ Replaced spherical players with 3D character avatars (green warrior, red fighter)
+✓ Enhanced arena environment with realistic textures and visible boundaries  
+✓ Added comprehensive dodge effect system with visual and audio feedback
+✓ Implemented stadium atmosphere with bleachers, pillars, and warning lights
+✓ Improved lighting and camera positioning for better visibility
+
 ## Changelog
 
 ```
 Changelog:
 - June 19, 2025. Initial setup
+- June 19, 2025. Added 3D character avatars, realistic arena environment, and dodge effects system
 ```
 
 ## User Preferences
