@@ -60,8 +60,8 @@ function App() {
             <Canvas
               shadows
               camera={{
-                position: [0, 8, 12],
-                fov: 45,
+                position: [0, 12, 15],
+                fov: 50,
                 near: 0.1,
                 far: 1000
               }}
@@ -70,7 +70,7 @@ function App() {
                 powerPreference: "default"
               }}
             >
-              <color attach="background" args={["#111111"]} />
+              <color attach="background" args={["#87ceeb"]} />
 
               {/* Lighting */}
               <Lights />
