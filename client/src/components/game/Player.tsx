@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { useGameState } from "../../lib/stores/useGameState";
 import { useAudio } from "../../lib/stores/useAudio";
 import { checkSphereCollision, keepInBounds, resolveCollision } from "../../lib/collision";
+import DodgeEffect from "./DodgeEffect";
 
 interface PlayerProps {
   playerId: 1 | 2;
@@ -12,8 +13,8 @@ interface PlayerProps {
 
 export default function Player({ playerId }: PlayerProps) {
   const groupRef = useRef<THREE.Group>(null);
-  const { players, updatePlayerPosition, updatePlayerVelocity, incrementScore, lastCollision, setLastCollision, gamePhase } = useGameState();
-  const { playHit } = useAudio();
+  const { players, updatePlayerPosition, updatePlayerVelocity, incrementScore, lastCollision, setLastCollision, gamePhase, dodgeEffects, triggerDodgeEffect } = useGameState();
+  const { playHit, playDodge } = useAudio();
   const [subscribe, get] = useKeyboardControls();
   
   // Load the appropriate avatar model based on player ID
@@ -25,6 +26,8 @@ export default function Player({ playerId }: PlayerProps) {
   
   const velocity = useRef(new THREE.Vector3(...player.velocity));
   const position = useRef(new THREE.Vector3(...player.position));
+  const lastVelocity = useRef(new THREE.Vector3());
+  const lastDodgeTime = useRef(0);
   
   // Movement parameters
   const moveSpeed = 0.15;
@@ -77,9 +80,26 @@ export default function Player({ playerId }: PlayerProps) {
     // Keep player in arena bounds
     position.current = keepInBounds(position.current, arenaCenter, arenaRadius, playerRadius);
     
+    // Check for dodge effect - rapid direction change or near miss
+    const velocityChange = velocity.current.clone().sub(lastVelocity.current).length();
+    const currentSpeed = velocity.current.length();
+    
     // Check collision with other player
     const otherPosition = new THREE.Vector3(...otherPlayer.position);
     const collision = checkSphereCollision(position.current, playerRadius, otherPosition, playerRadius);
+    const nearMiss = checkSphereCollision(position.current, playerRadius + 1.5, otherPosition, playerRadius);
+    
+    // Trigger dodge effect for rapid movement changes or near misses
+    if ((velocityChange > 0.3 || (nearMiss.collided && !collision.collided && currentSpeed > 0.1)) && 
+        currentTime - lastDodgeTime.current > 1) {
+      const dodgeDirection = velocity.current.clone().normalize();
+      triggerDodgeEffect(playerId, [dodgeDirection.x, dodgeDirection.y, dodgeDirection.z]);
+      playDodge();
+      lastDodgeTime.current = currentTime;
+    }
+    
+    // Store velocity for next frame comparison
+    lastVelocity.current.copy(velocity.current);
     
     if (collision.collided && currentTime - lastCollision > 0.5) {
       // Play hit sound
@@ -154,8 +174,19 @@ export default function Player({ playerId }: PlayerProps) {
   });
 
   return (
-    <group ref={groupRef} position={player.position}>
-      <primitive object={clonedScene} />
-    </group>
+    <>
+      <group ref={groupRef} position={player.position}>
+        <primitive object={clonedScene} />
+      </group>
+      
+      {/* Dodge effect */}
+      <DodgeEffect 
+        playerId={playerId}
+        active={dodgeEffects[playerId].active}
+        direction={dodgeEffects[playerId].direction}
+        playerPosition={player.position}
+        playerColor={player.color}
+      />
+    </>
   );
 }

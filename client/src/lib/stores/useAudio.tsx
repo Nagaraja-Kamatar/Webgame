@@ -4,28 +4,33 @@ interface AudioState {
   backgroundMusic: HTMLAudioElement | null;
   hitSound: HTMLAudioElement | null;
   successSound: HTMLAudioElement | null;
+  dodgeSound: HTMLAudioElement | null;
   isMuted: boolean;
   
   // Setter functions
   setBackgroundMusic: (music: HTMLAudioElement) => void;
   setHitSound: (sound: HTMLAudioElement) => void;
   setSuccessSound: (sound: HTMLAudioElement) => void;
+  setDodgeSound: (sound: HTMLAudioElement) => void;
   
   // Control functions
   toggleMute: () => void;
   playHit: () => void;
   playSuccess: () => void;
+  playDodge: () => void;
 }
 
 export const useAudio = create<AudioState>((set, get) => ({
   backgroundMusic: null,
   hitSound: null,
   successSound: null,
+  dodgeSound: null,
   isMuted: true, // Start muted by default
   
   setBackgroundMusic: (music) => set({ backgroundMusic: music }),
   setHitSound: (sound) => set({ hitSound: sound }),
   setSuccessSound: (sound) => set({ successSound: sound }),
+  setDodgeSound: (sound) => set({ dodgeSound: sound }),
   
   toggleMute: () => {
     const { isMuted } = get();
@@ -68,6 +73,21 @@ export const useAudio = create<AudioState>((set, get) => ({
       successSound.currentTime = 0;
       successSound.play().catch(error => {
         console.log("Success sound play prevented:", error);
+      });
+    }
+  },
+  
+  playDodge: () => {
+    const { dodgeSound, isMuted } = get();
+    if (dodgeSound) {
+      // If sound is muted, don't play anything
+      if (isMuted) {
+        console.log("Dodge sound skipped (muted)");
+        return;
+      }
+      
+      dodgeSound.play().catch(error => {
+        console.log("Dodge sound play prevented:", error);
       });
     }
   }

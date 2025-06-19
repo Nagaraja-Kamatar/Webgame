@@ -18,6 +18,7 @@ interface GameState {
   winScore: number;
   winner: number | null;
   lastCollision: number;
+  dodgeEffects: Record<number, { active: boolean; time: number; direction: [number, number, number] }>;
   
   // Actions
   startGame: () => void;
@@ -28,6 +29,7 @@ interface GameState {
   updatePlayerVelocity: (playerId: number, velocity: [number, number, number]) => void;
   incrementScore: (playerId: number) => void;
   setLastCollision: (time: number) => void;
+  triggerDodgeEffect: (playerId: number, direction: [number, number, number]) => void;
 }
 
 const initialPlayers: Record<number, Player> = {
@@ -56,6 +58,10 @@ export const useGameState = create<GameState>()(
     winScore: 5,
     winner: null,
     lastCollision: 0,
+    dodgeEffects: {
+      1: { active: false, time: 0, direction: [0, 0, 0] },
+      2: { active: false, time: 0, direction: [0, 0, 0] }
+    },
     
     startGame: () => {
       set({
@@ -137,6 +143,32 @@ export const useGameState = create<GameState>()(
     
     setLastCollision: (time: number) => {
       set({ lastCollision: time });
+    },
+    
+    triggerDodgeEffect: (playerId: number, direction: [number, number, number]) => {
+      set((state) => ({
+        dodgeEffects: {
+          ...state.dodgeEffects,
+          [playerId]: {
+            active: true,
+            time: Date.now(),
+            direction
+          }
+        }
+      }));
+      
+      // Auto-deactivate after 500ms
+      setTimeout(() => {
+        set((state) => ({
+          dodgeEffects: {
+            ...state.dodgeEffects,
+            [playerId]: {
+              ...state.dodgeEffects[playerId],
+              active: false
+            }
+          }
+        }));
+      }, 500);
     }
   }))
 );
