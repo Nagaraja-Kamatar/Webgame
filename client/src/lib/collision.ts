@@ -49,6 +49,37 @@ export function keepInBounds(
   return { position, outOfBounds: false };
 }
 
+export function keepInSquareBounds(
+  position: THREE.Vector3,
+  center: THREE.Vector3,
+  size: number,
+  objectRadius: number = 0.5
+): { position: THREE.Vector3; outOfBounds: boolean } {
+  const halfSize = size / 2 - objectRadius;
+  let outOfBounds = false;
+  const newPosition = position.clone();
+  
+  // Check X bounds
+  if (newPosition.x > center.x + halfSize) {
+    newPosition.x = center.x + halfSize;
+    outOfBounds = true;
+  } else if (newPosition.x < center.x - halfSize) {
+    newPosition.x = center.x - halfSize;
+    outOfBounds = true;
+  }
+  
+  // Check Z bounds
+  if (newPosition.z > center.z + halfSize) {
+    newPosition.z = center.z + halfSize;
+    outOfBounds = true;
+  } else if (newPosition.z < center.z - halfSize) {
+    newPosition.z = center.z - halfSize;
+    outOfBounds = true;
+  }
+  
+  return { position: newPosition, outOfBounds };
+}
+
 export function resolveCollision(
   pos1: THREE.Vector3,
   vel1: THREE.Vector3,

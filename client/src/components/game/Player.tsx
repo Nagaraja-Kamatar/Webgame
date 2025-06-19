@@ -4,7 +4,7 @@ import { useKeyboardControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { useGameState } from "../../lib/stores/useGameState";
 import { useAudio } from "../../lib/stores/useAudio";
-import { checkSphereCollision, keepInBounds, resolveCollision } from "../../lib/collision";
+import { checkSphereCollision, keepInSquareBounds, resolveCollision } from "../../lib/collision";
 import DodgeEffect from "./DodgeEffect";
 import ParticleTrail from "./ParticleTrail";
 import PowerField from "./PowerField";
@@ -42,7 +42,7 @@ export default function Player({ playerId }: PlayerProps) {
   const moveSpeed = 0.15;
   const friction = 0.85;
   const arenaCenter = new THREE.Vector3(0, 0.5, 0);
-  const arenaRadius = 7.5;
+  const arenaSize = 15; // Square arena size (was radius 7.5, now 15x15 square)
   const playerRadius = 0.8; // Slightly larger for avatar collision
   
   useEffect(() => {
@@ -87,7 +87,7 @@ export default function Player({ playerId }: PlayerProps) {
     position.current.add(velocity.current);
     
     // Keep player in arena bounds
-    const boundsResult = keepInBounds(position.current, arenaCenter, arenaRadius, playerRadius);
+    const boundsResult = keepInSquareBounds(position.current, arenaCenter, arenaSize, playerRadius);
     position.current = boundsResult.position;
     
     // Check if player went out of bounds
