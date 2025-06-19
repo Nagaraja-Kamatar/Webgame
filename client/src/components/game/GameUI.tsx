@@ -119,6 +119,8 @@ export default function GameUI() {
           <div style={{ fontSize: '18px', opacity: 0.8 }}>
             Press R to restart or ESC for menu
           </div>
+          
+
         </div>
       )}
     </div>

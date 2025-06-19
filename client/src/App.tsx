@@ -12,6 +12,9 @@ import GameUI from "./components/game/GameUI";
 import Menu from "./components/game/Menu";
 import Lights from "./components/game/Lights";
 import SoundManager from "./components/game/SoundManager";
+import CameraEffects from "./components/game/CameraEffects";
+import VictoryExplosion from "./components/game/VictoryExplosion";
+import ScreenEffects from "./components/game/ScreenEffects";
 
 // Define control keys for the game
 enum Controls {
@@ -76,12 +79,27 @@ function App() {
               <Lights />
 
               <Suspense fallback={null}>
+                {/* Camera effects */}
+                <CameraEffects />
+                
                 {/* Game Arena */}
                 <Arena />
                 
                 {/* Players */}
                 <Player playerId={1} />
                 <Player playerId={2} />
+                
+                {/* Victory explosion effect */}
+                {gamePhase === 'ended' && (
+                  <VictoryExplosion 
+                    position={[0, 3, 0]}
+                    active={true}
+                    color="#ffaa00"
+                  />
+                )}
+                
+                {/* Screen effects overlay */}
+                <ScreenEffects />
               </Suspense>
             </Canvas>
             <GameUI />

@@ -70,12 +70,15 @@ export default function DodgeEffect({ playerId, active, direction, playerPositio
         // Update mesh position
         child.position.copy(particle);
         
-        // Fade out over time
+        // Fade out over time with sparkle effect
         const material = child.material as THREE.MeshStandardMaterial;
-        material.opacity = Math.max(0, 1 - progress * 2);
+        const sparkle = 0.5 + Math.sin(progress * 20) * 0.5;
+        material.opacity = Math.max(0, (1 - progress * 2) * sparkle);
+        material.emissiveIntensity = sparkle;
         
-        // Scale down over time
-        const scale = Math.max(0.1, 1 - progress);
+        // Scale down over time with pulsing
+        const pulse = 1 + Math.sin(progress * 15) * 0.3;
+        const scale = Math.max(0.1, (1 - progress) * pulse);
         child.scale.setScalar(scale);
       }
     });

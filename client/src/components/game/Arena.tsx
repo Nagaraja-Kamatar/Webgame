@@ -1,6 +1,8 @@
 import { useRef } from "react";
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
+import WarpEffect from "./WarpEffect";
+import EnvironmentEffects from "./EnvironmentEffects";
 
 export default function Arena() {
   const meshRef = useRef<THREE.Mesh>(null);
@@ -159,6 +161,12 @@ export default function Arena() {
           </group>
         );
       })}
+      
+      {/* Background warp effect */}
+      <WarpEffect />
+      
+      {/* Environment effects */}
+      <EnvironmentEffects />
     </group>
   );
 }

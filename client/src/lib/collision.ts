@@ -34,16 +34,19 @@ export function keepInBounds(
   center: THREE.Vector3,
   radius: number,
   objectRadius: number = 0.5
-): THREE.Vector3 {
+): { position: THREE.Vector3; outOfBounds: boolean } {
   const distance = position.distanceTo(center);
   const maxDistance = radius - objectRadius;
   
   if (distance > maxDistance) {
     const direction = new THREE.Vector3().subVectors(position, center).normalize();
-    return new THREE.Vector3().addVectors(center, direction.multiplyScalar(maxDistance));
+    return {
+      position: new THREE.Vector3().addVectors(center, direction.multiplyScalar(maxDistance)),
+      outOfBounds: true
+    };
   }
   
-  return position;
+  return { position, outOfBounds: false };
 }
 
 export function resolveCollision(

@@ -6,6 +6,10 @@ import { useGameState } from "../../lib/stores/useGameState";
 import { useAudio } from "../../lib/stores/useAudio";
 import { checkSphereCollision, keepInBounds, resolveCollision } from "../../lib/collision";
 import DodgeEffect from "./DodgeEffect";
+import ParticleTrail from "./ParticleTrail";
+import PowerField from "./PowerField";
+import ShockWave from "./ShockWave";
+import FloatingText from "./FloatingText";
 
 interface PlayerProps {
   playerId: 1 | 2;
@@ -28,6 +32,11 @@ export default function Player({ playerId }: PlayerProps) {
   const position = useRef(new THREE.Vector3(...player.position));
   const lastVelocity = useRef(new THREE.Vector3());
   const lastDodgeTime = useRef(0);
+  const shockWaveActive = useRef(false);
+  const shockWaveTimeout = useRef<NodeJS.Timeout | null>(null);
+  const floatingTextActive = useRef(false);
+  const floatingTextTimeout = useRef<NodeJS.Timeout | null>(null);
+  const lastFloatingText = useRef("");
   
   // Movement parameters
   const moveSpeed = 0.15;
@@ -78,7 +87,36 @@ export default function Player({ playerId }: PlayerProps) {
     position.current.add(velocity.current);
     
     // Keep player in arena bounds
-    position.current = keepInBounds(position.current, arenaCenter, arenaRadius, playerRadius);
+    const boundsResult = keepInBounds(position.current, arenaCenter, arenaRadius, playerRadius);
+    position.current = boundsResult.position;
+    
+    // Check if player went out of bounds
+    if (boundsResult.outOfBounds && currentTime - lastCollision > 1) {
+      const otherPlayerId = playerId === 1 ? 2 : 1;
+      incrementScore(otherPlayerId);
+      playHit();
+      
+      // Trigger shock wave effect
+      shockWaveActive.current = true;
+      if (shockWaveTimeout.current) clearTimeout(shockWaveTimeout.current);
+      shockWaveTimeout.current = setTimeout(() => {
+        shockWaveActive.current = false;
+      }, 800);
+      
+      // Show floating text
+      lastFloatingText.current = "OUT!";
+      floatingTextActive.current = true;
+      if (floatingTextTimeout.current) clearTimeout(floatingTextTimeout.current);
+      floatingTextTimeout.current = setTimeout(() => {
+        floatingTextActive.current = false;
+      }, 2000);
+      
+      // Reset position and velocity
+      const resetPos = playerId === 1 ? [3, 0.5, 0] : [-3, 0.5, 0];
+      position.current.set(resetPos[0], resetPos[1], resetPos[2]);
+      velocity.current.set(0, 0, 0);
+      setLastCollision(currentTime);
+    }
     
     // Check for dodge effect - rapid direction change or near miss
     const velocityChange = velocity.current.clone().sub(lastVelocity.current).length();
@@ -104,6 +142,21 @@ export default function Player({ playerId }: PlayerProps) {
     if (collision.collided && currentTime - lastCollision > 0.5) {
       // Play hit sound
       playHit();
+      
+      // Trigger shock wave effect
+      shockWaveActive.current = true;
+      if (shockWaveTimeout.current) clearTimeout(shockWaveTimeout.current);
+      shockWaveTimeout.current = setTimeout(() => {
+        shockWaveActive.current = false;
+      }, 800);
+      
+      // Show floating text for hit
+      lastFloatingText.current = "HIT!";
+      floatingTextActive.current = true;
+      if (floatingTextTimeout.current) clearTimeout(floatingTextTimeout.current);
+      floatingTextTimeout.current = setTimeout(() => {
+        floatingTextActive.current = false;
+      }, 1500);
       
       // Resolve collision
       const otherVelocity = new THREE.Vector3(...otherPlayer.velocity);
@@ -173,11 +226,30 @@ export default function Player({ playerId }: PlayerProps) {
     }
   });
 
+  // Calculate movement intensity for effects
+  const speed = Math.sqrt(velocity.current.x ** 2 + velocity.current.z ** 2);
+  const movementIntensity = Math.min(speed / 0.3, 1);
+
   return (
     <>
       <group ref={groupRef} position={player.position}>
         <primitive object={clonedScene} />
       </group>
+      
+      {/* Power field under player */}
+      <PowerField 
+        playerPosition={player.position}
+        playerColor={player.color}
+        intensity={movementIntensity}
+      />
+      
+      {/* Particle trail when moving */}
+      <ParticleTrail 
+        playerPosition={player.position}
+        playerVelocity={player.velocity}
+        playerColor={player.color}
+        active={gamePhase === "playing" && speed > 0.05}
+      />
       
       {/* Dodge effect */}
       <DodgeEffect 
@@ -186,6 +258,22 @@ export default function Player({ playerId }: PlayerProps) {
         direction={dodgeEffects[playerId].direction}
         playerPosition={player.position}
         playerColor={player.color}
+      />
+      
+      {/* Shock wave effect */}
+      <ShockWave 
+        position={player.position}
+        active={shockWaveActive.current}
+        color={player.color}
+      />
+      
+      {/* Floating text */}
+      <FloatingText 
+        text={lastFloatingText.current}
+        position={[player.position[0], player.position[1] + 1, player.position[2]]}
+        active={floatingTextActive.current}
+        color={player.color}
+        size={0.8}
       />
     </>
   );
