@@ -1,6 +1,6 @@
 import { useRef, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
-import { useKeyboardControls } from "@react-three/drei";
+import { useKeyboardControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { useGameState } from "../../lib/stores/useGameState";
 import { useAudio } from "../../lib/stores/useAudio";
@@ -11,10 +11,14 @@ interface PlayerProps {
 }
 
 export default function Player({ playerId }: PlayerProps) {
-  const meshRef = useRef<THREE.Mesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
   const { players, updatePlayerPosition, updatePlayerVelocity, incrementScore, lastCollision, setLastCollision, gamePhase } = useGameState();
   const { playHit } = useAudio();
   const [subscribe, get] = useKeyboardControls();
+  
+  // Load the appropriate avatar model based on player ID
+  const avatarPath = playerId === 1 ? "/models/player1_avatar.glb" : "/models/player2_avatar.glb";
+  const { scene } = useGLTF(avatarPath);
   
   const player = players[playerId];
   const otherPlayer = players[playerId === 1 ? 2 : 1];
@@ -27,19 +31,19 @@ export default function Player({ playerId }: PlayerProps) {
   const friction = 0.85;
   const arenaCenter = new THREE.Vector3(0, 0.5, 0);
   const arenaRadius = 7.5;
-  const playerRadius = 0.5;
+  const playerRadius = 0.8; // Slightly larger for avatar collision
   
   useEffect(() => {
     // Reset position when game restarts
     position.current.set(...player.position);
     velocity.current.set(...player.velocity);
-    if (meshRef.current) {
-      meshRef.current.position.copy(position.current);
+    if (groupRef.current) {
+      groupRef.current.position.copy(position.current);
     }
   }, [player.position, gamePhase]);
 
   useFrame((state) => {
-    if (!meshRef.current || gamePhase !== 'playing') return;
+    if (!groupRef.current || gamePhase !== 'playing') return;
     
     const controls = get();
     const currentTime = state.clock.getElapsedTime();
@@ -115,22 +119,43 @@ export default function Player({ playerId }: PlayerProps) {
       setLastCollision(currentTime);
     }
     
-    // Update mesh position
-    meshRef.current.position.copy(position.current);
+    // Update group position
+    groupRef.current.position.copy(position.current);
     
     // Update game state
     updatePlayerPosition(playerId, [position.current.x, position.current.y, position.current.z]);
     updatePlayerVelocity(playerId, [velocity.current.x, velocity.current.y, velocity.current.z]);
   });
 
+  // Clone the scene to avoid sharing between instances
+  const clonedScene = scene.clone();
+  
+  // Scale the avatar appropriately for the game
+  clonedScene.scale.setScalar(2.5);
+  
+  // Ensure the avatar has proper materials and colors
+  clonedScene.traverse((child) => {
+    if (child instanceof THREE.Mesh) {
+      child.castShadow = true;
+      child.receiveShadow = true;
+      
+      // Apply player color tint to the materials
+      if (child.material) {
+        const material = child.material.clone();
+        if (material instanceof THREE.MeshStandardMaterial) {
+          // Tint the material with player color
+          const playerColorHex = new THREE.Color(player.color);
+          material.emissive = playerColorHex;
+          material.emissiveIntensity = 0.3;
+        }
+        child.material = material;
+      }
+    }
+  });
+
   return (
-    <mesh ref={meshRef} position={player.position} castShadow>
-      <sphereGeometry args={[playerRadius, 16, 16]} />
-      <meshStandardMaterial 
-        color={player.color}
-        emissive={player.color}
-        emissiveIntensity={0.2}
-      />
-    </mesh>
+    <group ref={groupRef} position={player.position}>
+      <primitive object={clonedScene} />
+    </group>
   );
 }
