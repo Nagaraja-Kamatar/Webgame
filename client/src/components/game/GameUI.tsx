@@ -1,9 +1,11 @@
 import { useGameState } from "../../lib/stores/useGameState";
+import { useAudio } from "../../lib/stores/useAudio";
 import { useKeyboardControls } from "@react-three/drei";
 import { useEffect } from "react";
 
 export default function GameUI() {
   const { players, gamePhase, winner, resetGame, showMenu } = useGameState();
+  const { isMuted, toggleMute, playSuccess } = useAudio();
   const [subscribe, get] = useKeyboardControls();
   
   useEffect(() => {
@@ -32,6 +34,13 @@ export default function GameUI() {
       unsubscribeEscape();
     };
   }, [subscribe, get, resetGame, showMenu]);
+
+  // Play victory sound when game ends
+  useEffect(() => {
+    if (gamePhase === 'ended' && winner) {
+      playSuccess();
+    }
+  }, [gamePhase, winner, playSuccess]);
 
   if (gamePhase === 'menu') return null;
 
@@ -93,6 +102,38 @@ export default function GameUI() {
         <div style={{ marginTop: '10px', fontSize: '12px', opacity: 0.8 }}>
           R - Restart | ESC - Menu
         </div>
+      </div>
+
+      {/* Audio Control */}
+      <div style={{
+        position: 'absolute',
+        top: '20px',
+        right: '20px',
+        pointerEvents: 'auto'
+      }}>
+        <button
+          onClick={toggleMute}
+          style={{
+            backgroundColor: 'rgba(0,0,0,0.7)',
+            border: 'none',
+            color: 'white',
+            padding: '10px',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            fontSize: '16px',
+            fontFamily: 'Inter, sans-serif'
+          }}
+          onMouseEnter={(e) => {
+            const target = e.target as HTMLButtonElement;
+            target.style.backgroundColor = 'rgba(0,0,0,0.9)';
+          }}
+          onMouseLeave={(e) => {
+            const target = e.target as HTMLButtonElement;
+            target.style.backgroundColor = 'rgba(0,0,0,0.7)';
+          }}
+        >
+          {isMuted ? '🔇' : '🔊'}
+        </button>
       </div>
 
       {/* Game Status */}
