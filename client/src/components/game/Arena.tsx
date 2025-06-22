@@ -1,14 +1,37 @@
-import { useRef, Suspense } from "react";
+import { useRef, Suspense, useCallback } from "react";
 import { useTexture, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import WarpEffect from "./WarpEffect";
 import EnvironmentEffects from "./EnvironmentEffects";
+import AnimatedCrowd from "./AnimatedCrowd";
+import CrowdSynchronizer from "./CrowdSynchronizer";
+import CrowdReactionManager from "./CrowdReactionManager";
 
 export default function Arena() {
   const meshRef = useRef<THREE.Mesh>(null);
   const asphaltTexture = useTexture("/textures/asphalt.png");
   const sandTexture = useTexture("/textures/sand.jpg");
   const grassTexture = useTexture("/textures/grass.png");
+  
+  const handleCrowdSync = useCallback((crowdId: string, syncData: {
+    intensity: number;
+    wavePhase: number;
+    bounceAmplitude: number;
+    colorIntensity: number;
+  }) => {
+    // Sync data will be handled by individual AnimatedCrowd components
+    // This callback ensures the synchronizer can communicate with crowds
+  }, []);
+
+  const handleReactionTrigger = useCallback((reaction: {
+    type: 'cheer' | 'gasp' | 'wave' | 'stomp';
+    intensity: number;
+    duration: number;
+    crowdSections: string[];
+  }) => {
+    // Broadcast reaction to all specified crowd sections
+    console.log(`Crowd reaction: ${reaction.type} with intensity ${reaction.intensity}`);
+  }, []);
   
   // Load royal battle arena models
   const { scene: arenaFloor } = useGLTF("/models/royal_arena_floor.glb");
@@ -239,165 +262,149 @@ export default function Arena() {
         />
       </Suspense>
 
-      {/* Cheering Crowd in Stands - Massive and Highly Visible */}
+      {/* Animated Cheering Crowd in Main Stands */}
       <Suspense fallback={null}>
-        <primitive 
-          object={cheeringCrowd.clone()} 
-          scale={[5, 5, 5]} 
+        <AnimatedCrowd
           position={[0, 5, -22]}
-          castShadow
+          scale={[5, 5, 5]}
+          crowdId="north-main"
         />
       </Suspense>
       
       <Suspense fallback={null}>
-        <primitive 
-          object={cheeringCrowd.clone()} 
-          scale={[5, 5, 5]} 
+        <AnimatedCrowd
           position={[22, 5, 0]}
           rotation={[0, -Math.PI / 2, 0]}
-          castShadow
+          scale={[5, 5, 5]}
+          crowdId="east-main"
         />
       </Suspense>
       
       <Suspense fallback={null}>
-        <primitive 
-          object={cheeringCrowd.clone()} 
-          scale={[5, 5, 5]} 
+        <AnimatedCrowd
           position={[-22, 5, 0]}
           rotation={[0, Math.PI / 2, 0]}
-          castShadow
+          scale={[5, 5, 5]}
+          crowdId="west-main"
         />
       </Suspense>
       
       <Suspense fallback={null}>
-        <primitive 
-          object={cheeringCrowd.clone()} 
-          scale={[5, 5, 5]} 
+        <AnimatedCrowd
           position={[0, 5, 22]}
           rotation={[0, Math.PI, 0]}
-          castShadow
+          scale={[5, 5, 5]}
+          crowdId="south-main"
         />
       </Suspense>
 
-      {/* Additional Background Crowds - Much Larger */}
+      {/* Animated Background Crowds */}
       <Suspense fallback={null}>
-        <primitive 
-          object={cheeringCrowd.clone()} 
-          scale={[4, 4, 4]} 
+        <AnimatedCrowd
           position={[18, 3, -18]}
           rotation={[0, -Math.PI / 4, 0]}
-          castShadow
+          scale={[4, 4, 4]}
+          crowdId="northeast"
         />
       </Suspense>
       
       <Suspense fallback={null}>
-        <primitive 
-          object={cheeringCrowd.clone()} 
-          scale={[4, 4, 4]} 
+        <AnimatedCrowd
           position={[-18, 3, -18]}
           rotation={[0, Math.PI / 4, 0]}
-          castShadow
+          scale={[4, 4, 4]}
+          crowdId="northwest"
         />
       </Suspense>
       
       <Suspense fallback={null}>
-        <primitive 
-          object={cheeringCrowd.clone()} 
-          scale={[4, 4, 4]} 
+        <AnimatedCrowd
           position={[18, 3, 18]}
           rotation={[0, -3 * Math.PI / 4, 0]}
-          castShadow
+          scale={[4, 4, 4]}
+          crowdId="southeast"
         />
       </Suspense>
       
       <Suspense fallback={null}>
-        <primitive 
-          object={cheeringCrowd.clone()} 
-          scale={[4, 4, 4]} 
+        <AnimatedCrowd
           position={[-18, 3, 18]}
           rotation={[0, 3 * Math.PI / 4, 0]}
-          castShadow
+          scale={[4, 4, 4]}
+          crowdId="southwest"
         />
       </Suspense>
 
-      {/* Massive Stadium Crowds in Background */}
+      {/* Animated Stadium Crowds in Background */}
       <Suspense fallback={null}>
-        <primitive 
-          object={stadiumCrowd.clone()} 
-          scale={[4, 4, 4]} 
+        <AnimatedCrowd
           position={[0, 3, -35]}
-          castShadow
+          scale={[4, 4, 4]}
+          crowdId="north-stadium"
         />
       </Suspense>
       
       <Suspense fallback={null}>
-        <primitive 
-          object={stadiumCrowd.clone()} 
-          scale={[4, 4, 4]} 
+        <AnimatedCrowd
           position={[35, 3, 0]}
           rotation={[0, -Math.PI / 2, 0]}
-          castShadow
+          scale={[4, 4, 4]}
+          crowdId="east-stadium"
         />
       </Suspense>
       
       <Suspense fallback={null}>
-        <primitive 
-          object={stadiumCrowd.clone()} 
-          scale={[4, 4, 4]} 
+        <AnimatedCrowd
           position={[-35, 3, 0]}
           rotation={[0, Math.PI / 2, 0]}
-          castShadow
+          scale={[4, 4, 4]}
+          crowdId="west-stadium"
         />
       </Suspense>
       
       <Suspense fallback={null}>
-        <primitive 
-          object={stadiumCrowd.clone()} 
-          scale={[4, 4, 4]} 
+        <AnimatedCrowd
           position={[0, 3, 35]}
           rotation={[0, Math.PI, 0]}
-          castShadow
+          scale={[4, 4, 4]}
+          crowdId="south-stadium"
         />
       </Suspense>
 
-      {/* Additional Distant Stadium Crowds */}
+      {/* Additional Animated Distant Stadium Crowds */}
       <Suspense fallback={null}>
-        <primitive 
-          object={stadiumCrowd.clone()} 
-          scale={[3, 3, 3]} 
+        <AnimatedCrowd
           position={[25, 2, -25]}
           rotation={[0, -Math.PI / 4, 0]}
-          castShadow
+          scale={[3, 3, 3]}
+          crowdId="far-northeast"
         />
       </Suspense>
       
       <Suspense fallback={null}>
-        <primitive 
-          object={stadiumCrowd.clone()} 
-          scale={[3, 3, 3]} 
+        <AnimatedCrowd
           position={[-25, 2, -25]}
           rotation={[0, Math.PI / 4, 0]}
-          castShadow
+          scale={[3, 3, 3]}
+          crowdId="far-northwest"
         />
       </Suspense>
       
       <Suspense fallback={null}>
-        <primitive 
-          object={stadiumCrowd.clone()} 
-          scale={[3, 3, 3]} 
+        <AnimatedCrowd
           position={[25, 2, 25]}
           rotation={[0, -3 * Math.PI / 4, 0]}
-          castShadow
+          scale={[3, 3, 3]}
+          crowdId="far-southeast"
         />
       </Suspense>
       
       <Suspense fallback={null}>
-        <primitive 
-          object={stadiumCrowd.clone()} 
-          scale={[3, 3, 3]} 
+        <AnimatedCrowd
           position={[-25, 2, 25]}
           rotation={[0, 3 * Math.PI / 4, 0]}
-          castShadow
+          scale={[3, 3, 3]}
+          crowdId="far-southwest"
         />
       </Suspense>
       
@@ -511,6 +518,12 @@ export default function Arena() {
           </mesh>
         </group>
       </group>
+      
+      {/* Crowd Synchronization System */}
+      <CrowdSynchronizer onCrowdSync={handleCrowdSync} />
+      
+      {/* Crowd Reaction Management */}
+      <CrowdReactionManager onReactionTrigger={handleReactionTrigger} />
       
       {/* Background warp effect */}
       <WarpEffect />
