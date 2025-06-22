@@ -6,7 +6,9 @@ export default function SoundManager() {
   const { setHitSound, setSuccessSound, setDodgeSound, setBackgroundMusic } = useAudio();
   const { gamePhase, players } = useGameState();
   const crowdSoundRef = useRef<HTMLAudioElement | null>(null);
+  const clappingSoundRef = useRef<HTMLAudioElement | null>(null);
   const lastScoreRef = useRef({ p1: 0, p2: 0 });
+  const lastClappingTime = useRef(0);
 
   useEffect(() => {
     // Load background music
@@ -93,6 +95,49 @@ export default function SoundManager() {
 
     crowdSoundRef.current = crowdAudio;
 
+    // Create clapping sound programmatically
+    const createClappingSound = () => {
+      const clappingContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const duration = 2.5;
+      const clappingBuffer = clappingContext.createBuffer(1, clappingContext.sampleRate * duration, clappingContext.sampleRate);
+      const data = clappingBuffer.getChannelData(0);
+      
+      // Generate rhythmic clapping with multiple layers
+      for (let i = 0; i < data.length; i++) {
+        const t = i / clappingContext.sampleRate;
+        const noise = (Math.random() - 0.5) * 2;
+        
+        // Create clapping rhythm pattern
+        const clapTiming = Math.floor(t * 8) % 2; // 4 claps per second
+        const clapIntensity = clapTiming === 0 ? 1 : 0.3;
+        
+        const clap = noise * Math.exp(-((t % 0.25) * 20)) * clapIntensity * 0.4;
+        const reverb = clap * 0.3 * Math.exp(-t * 0.5);
+        
+        data[i] = (clap + reverb) * (1 - t / duration) * 0.5;
+      }
+      
+      return clappingBuffer;
+    };
+
+    const clappingBuffer = createClappingSound();
+    const clappingAudio = {
+      currentTime: 0,
+      volume: 0.7,
+      play: () => {
+        const source = audioContext.createBufferSource();
+        const gainNode = audioContext.createGain();
+        source.buffer = clappingBuffer;
+        source.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        gainNode.gain.setValueAtTime(0.7, audioContext.currentTime);
+        source.start();
+        return Promise.resolve();
+      }
+    } as HTMLAudioElement;
+
+    clappingSoundRef.current = clappingAudio;
+
     console.log("Sound effects loaded");
   }, [setHitSound, setSuccessSound, setDodgeSound, setBackgroundMusic]);
 
@@ -109,14 +154,29 @@ export default function SoundManager() {
     }
   }, [gamePhase]);
 
-  // Play crowd reactions when scores change
+  // Play crowd reactions when scores change and periodic clapping
   useEffect(() => {
     const currentScores = { p1: players[1].score, p2: players[2].score };
+    const currentTime = Date.now();
     
-    if (gamePhase === 'playing' && crowdSoundRef.current) {
+    if (gamePhase === 'playing') {
       // Check if score increased
       if (currentScores.p1 > lastScoreRef.current.p1 || currentScores.p2 > lastScoreRef.current.p2) {
-        crowdSoundRef.current.play().catch(e => console.log("Crowd sound blocked"));
+        if (crowdSoundRef.current) {
+          crowdSoundRef.current.play().catch(e => console.log("Crowd sound blocked"));
+        }
+        // Play clapping after scoring
+        if (clappingSoundRef.current) {
+          setTimeout(() => {
+            clappingSoundRef.current?.play().catch(e => console.log("Clapping sound blocked"));
+          }, 500);
+        }
+      }
+      
+      // Play periodic clapping during gameplay
+      if (currentTime - lastClappingTime.current > 8000 && clappingSoundRef.current) {
+        clappingSoundRef.current.play().catch(e => console.log("Periodic clapping blocked"));
+        lastClappingTime.current = currentTime;
       }
     }
     

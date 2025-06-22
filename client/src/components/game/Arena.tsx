@@ -239,12 +239,12 @@ export default function Arena() {
         />
       </Suspense>
 
-      {/* Cheering Crowd in Stands - Much Larger and More Visible */}
+      {/* Cheering Crowd in Stands - Massive and Highly Visible */}
       <Suspense fallback={null}>
         <primitive 
           object={cheeringCrowd.clone()} 
-          scale={[3, 3, 3]} 
-          position={[0, 4, -20]}
+          scale={[5, 5, 5]} 
+          position={[0, 5, -22]}
           castShadow
         />
       </Suspense>
@@ -252,8 +252,8 @@ export default function Arena() {
       <Suspense fallback={null}>
         <primitive 
           object={cheeringCrowd.clone()} 
-          scale={[3, 3, 3]} 
-          position={[20, 4, 0]}
+          scale={[5, 5, 5]} 
+          position={[22, 5, 0]}
           rotation={[0, -Math.PI / 2, 0]}
           castShadow
         />
@@ -262,8 +262,8 @@ export default function Arena() {
       <Suspense fallback={null}>
         <primitive 
           object={cheeringCrowd.clone()} 
-          scale={[3, 3, 3]} 
-          position={[-20, 4, 0]}
+          scale={[5, 5, 5]} 
+          position={[-22, 5, 0]}
           rotation={[0, Math.PI / 2, 0]}
           castShadow
         />
@@ -272,19 +272,19 @@ export default function Arena() {
       <Suspense fallback={null}>
         <primitive 
           object={cheeringCrowd.clone()} 
-          scale={[3, 3, 3]} 
-          position={[0, 4, 20]}
+          scale={[5, 5, 5]} 
+          position={[0, 5, 22]}
           rotation={[0, Math.PI, 0]}
           castShadow
         />
       </Suspense>
 
-      {/* Additional Background Crowds */}
+      {/* Additional Background Crowds - Much Larger */}
       <Suspense fallback={null}>
         <primitive 
           object={cheeringCrowd.clone()} 
-          scale={[2.5, 2.5, 2.5]} 
-          position={[15, 2, -15]}
+          scale={[4, 4, 4]} 
+          position={[18, 3, -18]}
           rotation={[0, -Math.PI / 4, 0]}
           castShadow
         />
@@ -293,8 +293,8 @@ export default function Arena() {
       <Suspense fallback={null}>
         <primitive 
           object={cheeringCrowd.clone()} 
-          scale={[2.5, 2.5, 2.5]} 
-          position={[-15, 2, -15]}
+          scale={[4, 4, 4]} 
+          position={[-18, 3, -18]}
           rotation={[0, Math.PI / 4, 0]}
           castShadow
         />
@@ -303,8 +303,8 @@ export default function Arena() {
       <Suspense fallback={null}>
         <primitive 
           object={cheeringCrowd.clone()} 
-          scale={[2.5, 2.5, 2.5]} 
-          position={[15, 2, 15]}
+          scale={[4, 4, 4]} 
+          position={[18, 3, 18]}
           rotation={[0, -3 * Math.PI / 4, 0]}
           castShadow
         />
@@ -313,8 +313,8 @@ export default function Arena() {
       <Suspense fallback={null}>
         <primitive 
           object={cheeringCrowd.clone()} 
-          scale={[2.5, 2.5, 2.5]} 
-          position={[-15, 2, 15]}
+          scale={[4, 4, 4]} 
+          position={[-18, 3, 18]}
           rotation={[0, 3 * Math.PI / 4, 0]}
           castShadow
         />
@@ -432,34 +432,85 @@ export default function Arena() {
         </group>
       ))}
       
-      {/* Warning lights around square arena perimeter */}
+      {/* Royal Battle Banners Along Arena Sides */}
       {[
-        // North side
+        // North side banners
         [-6, 1.5, 9], [0, 1.5, 9], [6, 1.5, 9],
-        // South side
+        // South side banners
         [-6, 1.5, -9], [0, 1.5, -9], [6, 1.5, -9],
-        // East side
+        // East side banners
         [9, 1.5, -6], [9, 1.5, 0], [9, 1.5, 6],
-        // West side
+        // West side banners
         [-9, 1.5, -6], [-9, 1.5, 0], [-9, 1.5, 6]
       ].map((pos, i) => (
         <group key={i} position={pos as [number, number, number]}>
-          <mesh castShadow>
-            <boxGeometry args={[0.3, 0.3, 0.3]} />
+          {/* Banner pole */}
+          <mesh position={[0, 2, 0]} castShadow receiveShadow>
+            <cylinderGeometry args={[0.05, 0.05, 4]} />
+            <meshStandardMaterial color="#8B4513" />
+          </mesh>
+          {/* Royal banner */}
+          <mesh position={[0.3, 3, 0]} castShadow>
+            <planeGeometry args={[0.8, 1.2]} />
             <meshStandardMaterial 
-              color="#ff0000" 
-              emissive="#ff0000"
-              emissiveIntensity={0.5}
+              color={i % 3 === 0 ? "#4169e1" : i % 3 === 1 ? "#dc143c" : "#ffd700"} 
+              transparent 
+              opacity={0.9}
             />
           </mesh>
+          {/* Royal crest */}
+          <mesh position={[0.3, 3, 0.05]} castShadow>
+            <planeGeometry args={[0.3, 0.3]} />
+            <meshStandardMaterial 
+              color="#ffd700" 
+              transparent 
+              opacity={0.8}
+            />
+          </mesh>
+          {/* Torch light */}
           <pointLight
-            position={[0, 0, 0]}
-            intensity={0.5}
-            color="#ff0000"
-            distance={5}
+            position={[0, 4, 0]}
+            intensity={0.8}
+            color="#ff6347"
+            distance={8}
           />
         </group>
       ))}
+
+      {/* Large Royal Flags at Arena Entrance */}
+      <group position={[0, 0, -12]}>
+        {/* Left entrance flag */}
+        <group position={[-4, 0, 0]}>
+          <mesh position={[0, 5, 0]} castShadow receiveShadow>
+            <cylinderGeometry args={[0.15, 0.15, 10]} />
+            <meshStandardMaterial color="#8B4513" />
+          </mesh>
+          <mesh position={[1, 7, 0]} castShadow>
+            <planeGeometry args={[3, 4]} />
+            <meshStandardMaterial color="#4169e1" transparent opacity={0.9} />
+          </mesh>
+          <mesh position={[1, 7, 0.1]} castShadow>
+            <planeGeometry args={[1.5, 1.5]} />
+            <meshStandardMaterial color="#ffd700" transparent opacity={0.8} />
+          </mesh>
+        </group>
+        
+        {/* Right entrance flag */}
+        <group position={[4, 0, 0]}>
+          <mesh position={[0, 5, 0]} castShadow receiveShadow>
+            <cylinderGeometry args={[0.15, 0.15, 10]} />
+            <meshStandardMaterial color="#8B4513" />
+          </mesh>
+          <mesh position={[-1, 7, 0]} castShadow>
+            <planeGeometry args={[3, 4]} />
+            <meshStandardMaterial color="#dc143c" transparent opacity={0.9} />
+          </mesh>
+          <mesh position={[-1, 7, 0.1]} castShadow>
+            <planeGeometry args={[1.5, 1.5]} />
+            <meshStandardMaterial color="#ffd700" transparent opacity={0.8} />
+          </mesh>
+        </group>
+      </group>
       
       {/* Background warp effect */}
       <WarpEffect />
