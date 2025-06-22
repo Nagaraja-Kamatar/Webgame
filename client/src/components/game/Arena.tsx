@@ -14,9 +14,15 @@ export default function Arena() {
   const { scene: arenaFloor } = useGLTF("/models/royal_arena_floor.glb");
   const { scene: castleWalls } = useGLTF("/models/castle_walls.glb");
   
+  // Load additional royal battle models
+  const { scene: tournamentPavilions } = useGLTF("/models/tournament_pavilions.glb");
+  const { scene: cheeringCrowd } = useGLTF("/models/cheering_crowd.glb");
+  
   // Preload models for better performance
   useGLTF.preload("/models/royal_arena_floor.glb");
   useGLTF.preload("/models/castle_walls.glb");
+  useGLTF.preload("/models/tournament_pavilions.glb");
+  useGLTF.preload("/models/cheering_crowd.glb");
   
   // Configure arena floor texture
   asphaltTexture.wrapS = asphaltTexture.wrapT = THREE.RepeatWrapping;
@@ -31,16 +37,16 @@ export default function Arena() {
 
   return (
     <group>
-      {/* Large ground plane extending beyond arena */}
+      {/* Large medieval countryside extending beyond arena */}
       <mesh position={[0, -0.5, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[100, 100]} />
-        <meshStandardMaterial map={grassTexture} color="#2d5a2d" />
+        <meshStandardMaterial map={grassTexture} color="#3a5f3a" />
       </mesh>
       
-      {/* Sand area around arena */}
+      {/* Royal tournament ground around arena */}
       <mesh position={[0, -0.48, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <boxGeometry args={[30, 30, 0.02]} />
-        <meshStandardMaterial map={sandTexture} color="#d4a574" />
+        <boxGeometry args={[35, 35, 0.02]} />
+        <meshStandardMaterial map={sandTexture} color="#c19a6b" />
       </mesh>
       
       {/* Royal Arena Floor */}
@@ -139,14 +145,14 @@ export default function Arena() {
         />
       </mesh>
       
-      {/* Sky dome for better atmosphere */}
+      {/* Medieval sky dome for royal battle atmosphere */}
       <mesh position={[0, 0, 0]} scale={[50, 50, 50]}>
         <sphereGeometry args={[1, 32, 16]} />
         <meshBasicMaterial 
-          color="#87CEEB" 
+          color="#4169e1" 
           side={THREE.BackSide}
           transparent
-          opacity={0.3}
+          opacity={0.4}
         />
       </mesh>
       
@@ -190,15 +196,107 @@ export default function Arena() {
           castShadow
         />
       </Suspense>
+
+      {/* Tournament Pavilions */}
+      <Suspense fallback={null}>
+        <primitive 
+          object={tournamentPavilions.clone()} 
+          scale={[2, 2, 2]} 
+          position={[15, 0, 15]}
+          castShadow
+        />
+      </Suspense>
       
-      {/* Decorative pillars at corners */}
+      <Suspense fallback={null}>
+        <primitive 
+          object={tournamentPavilions.clone()} 
+          scale={[2, 2, 2]} 
+          position={[-15, 0, 15]}
+          rotation={[0, -Math.PI / 2, 0]}
+          castShadow
+        />
+      </Suspense>
+      
+      <Suspense fallback={null}>
+        <primitive 
+          object={tournamentPavilions.clone()} 
+          scale={[2, 2, 2]} 
+          position={[15, 0, -15]}
+          rotation={[0, Math.PI / 2, 0]}
+          castShadow
+        />
+      </Suspense>
+      
+      <Suspense fallback={null}>
+        <primitive 
+          object={tournamentPavilions.clone()} 
+          scale={[2, 2, 2]} 
+          position={[-15, 0, -15]}
+          rotation={[0, Math.PI, 0]}
+          castShadow
+        />
+      </Suspense>
+
+      {/* Cheering Crowd in Stands */}
+      <Suspense fallback={null}>
+        <primitive 
+          object={cheeringCrowd.clone()} 
+          scale={[1.5, 1.5, 1.5]} 
+          position={[0, 3, -16]}
+          castShadow
+        />
+      </Suspense>
+      
+      <Suspense fallback={null}>
+        <primitive 
+          object={cheeringCrowd.clone()} 
+          scale={[1.5, 1.5, 1.5]} 
+          position={[16, 3, 0]}
+          rotation={[0, -Math.PI / 2, 0]}
+          castShadow
+        />
+      </Suspense>
+      
+      <Suspense fallback={null}>
+        <primitive 
+          object={cheeringCrowd.clone()} 
+          scale={[1.5, 1.5, 1.5]} 
+          position={[-16, 3, 0]}
+          rotation={[0, Math.PI / 2, 0]}
+          castShadow
+        />
+      </Suspense>
+      
+      <Suspense fallback={null}>
+        <primitive 
+          object={cheeringCrowd.clone()} 
+          scale={[1.5, 1.5, 1.5]} 
+          position={[0, 3, 16]}
+          rotation={[0, Math.PI, 0]}
+          castShadow
+        />
+      </Suspense>
+      
+      {/* Royal tournament banners at corners */}
       {[
         [12, 12], [-12, 12], [12, -12], [-12, -12]
       ].map(([x, z], i) => (
-        <mesh key={i} position={[x, 3, z]} castShadow receiveShadow>
-          <boxGeometry args={[1, 6, 1]} />
-          <meshStandardMaterial color="#A0A0A0" metalness={0.3} roughness={0.7} />
-        </mesh>
+        <group key={i} position={[x, 0, z]}>
+          {/* Banner pole */}
+          <mesh position={[0, 4, 0]} castShadow receiveShadow>
+            <cylinderGeometry args={[0.1, 0.1, 8]} />
+            <meshStandardMaterial color="#8B4513" />
+          </mesh>
+          {/* Royal banner */}
+          <mesh position={[0.5, 6, 0]} castShadow>
+            <planeGeometry args={[1.5, 2]} />
+            <meshStandardMaterial 
+              color={i % 2 === 0 ? "#4169e1" : "#dc143c"} 
+              transparent 
+              opacity={0.9}
+            />
+          </mesh>
+        </group>
       ))}
       
       {/* Warning lights around square arena perimeter */}
