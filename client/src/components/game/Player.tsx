@@ -21,9 +21,11 @@ export default function Player({ playerId }: PlayerProps) {
   const { playHit, playDodge } = useAudio();
   const [subscribe, get] = useKeyboardControls();
   
-  // Load the appropriate avatar model based on player ID
-  const avatarPath = playerId === 1 ? "/models/player1_avatar.glb" : "/models/player2_avatar.glb";
-  const { scene } = useGLTF(avatarPath);
+  // Load the knight character model for both players
+  const { scene } = useGLTF("/models/knight_character.glb");
+  
+  // Preload the model for better performance
+  useGLTF.preload("/models/knight_character.glb");
   
   const player = players[playerId];
   const otherPlayer = players[playerId === 1 ? 2 : 1];

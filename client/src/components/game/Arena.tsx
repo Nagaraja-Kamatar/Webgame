@@ -1,5 +1,5 @@
-import { useRef } from "react";
-import { useTexture } from "@react-three/drei";
+import { useRef, Suspense } from "react";
+import { useTexture, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import WarpEffect from "./WarpEffect";
 import EnvironmentEffects from "./EnvironmentEffects";
@@ -9,6 +9,14 @@ export default function Arena() {
   const asphaltTexture = useTexture("/textures/asphalt.png");
   const sandTexture = useTexture("/textures/sand.jpg");
   const grassTexture = useTexture("/textures/grass.png");
+  
+  // Load royal battle arena models
+  const { scene: arenaFloor } = useGLTF("/models/royal_arena_floor.glb");
+  const { scene: castleWalls } = useGLTF("/models/castle_walls.glb");
+  
+  // Preload models for better performance
+  useGLTF.preload("/models/royal_arena_floor.glb");
+  useGLTF.preload("/models/castle_walls.glb");
   
   // Configure arena floor texture
   asphaltTexture.wrapS = asphaltTexture.wrapT = THREE.RepeatWrapping;
@@ -35,11 +43,21 @@ export default function Arena() {
         <meshStandardMaterial map={sandTexture} color="#d4a574" />
       </mesh>
       
-      {/* Arena floor */}
-      <mesh ref={meshRef} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <boxGeometry args={[16, 16, 0.2]} />
-        <meshStandardMaterial map={asphaltTexture} />
-      </mesh>
+      {/* Royal Arena Floor */}
+      <Suspense fallback={
+        <mesh ref={meshRef} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+          <boxGeometry args={[16, 16, 0.2]} />
+          <meshStandardMaterial map={asphaltTexture} />
+        </mesh>
+      }>
+        <primitive 
+          object={arenaFloor.clone()} 
+          scale={[3, 1, 3]} 
+          position={[0, 0, 0]}
+          receiveShadow
+          castShadow
+        />
+      </Suspense>
       
       {/* Arena wall (invisible collision boundary) */}
       <mesh position={[0, 2, 0]} visible={false}>
@@ -132,51 +150,46 @@ export default function Arena() {
         />
       </mesh>
       
-      {/* Arena stands/bleachers around the square arena */}
-      {/* North stands */}
-      <group position={[0, 0, 18]}>
-        <mesh position={[0, 2, 0]} castShadow receiveShadow>
-          <boxGeometry args={[20, 4, 2]} />
-          <meshStandardMaterial color="#8B4513" />
-        </mesh>
-        <mesh position={[0, 4.5, 0]} castShadow receiveShadow>
-          <boxGeometry args={[20, 1, 2]} />
-          <meshStandardMaterial color="#654321" />
-        </mesh>
-      </group>
-      {/* South stands */}
-      <group position={[0, 0, -18]}>
-        <mesh position={[0, 2, 0]} castShadow receiveShadow>
-          <boxGeometry args={[20, 4, 2]} />
-          <meshStandardMaterial color="#8B4513" />
-        </mesh>
-        <mesh position={[0, 4.5, 0]} castShadow receiveShadow>
-          <boxGeometry args={[20, 1, 2]} />
-          <meshStandardMaterial color="#654321" />
-        </mesh>
-      </group>
-      {/* East stands */}
-      <group position={[18, 0, 0]}>
-        <mesh position={[0, 2, 0]} castShadow receiveShadow>
-          <boxGeometry args={[2, 4, 16]} />
-          <meshStandardMaterial color="#8B4513" />
-        </mesh>
-        <mesh position={[0, 4.5, 0]} castShadow receiveShadow>
-          <boxGeometry args={[2, 1, 16]} />
-          <meshStandardMaterial color="#654321" />
-        </mesh>
-      </group>
-      {/* West stands */}
-      <group position={[-18, 0, 0]}>
-        <mesh position={[0, 2, 0]} castShadow receiveShadow>
-          <boxGeometry args={[2, 4, 16]} />
-          <meshStandardMaterial color="#8B4513" />
-        </mesh>
-        <mesh position={[0, 4.5, 0]} castShadow receiveShadow>
-          <boxGeometry args={[2, 1, 16]} />
-          <meshStandardMaterial color="#654321" />
-        </mesh>
-      </group>
+      {/* Castle Walls Background */}
+      <Suspense fallback={null}>
+        <primitive 
+          object={castleWalls.clone()} 
+          scale={[4, 4, 4]} 
+          position={[0, 0, -20]}
+          castShadow
+        />
+      </Suspense>
+      
+      {/* Additional castle walls around the arena */}
+      <Suspense fallback={null}>
+        <primitive 
+          object={castleWalls.clone()} 
+          scale={[4, 4, 4]} 
+          position={[20, 0, 0]}
+          rotation={[0, Math.PI / 2, 0]}
+          castShadow
+        />
+      </Suspense>
+      
+      <Suspense fallback={null}>
+        <primitive 
+          object={castleWalls.clone()} 
+          scale={[4, 4, 4]} 
+          position={[-20, 0, 0]}
+          rotation={[0, -Math.PI / 2, 0]}
+          castShadow
+        />
+      </Suspense>
+      
+      <Suspense fallback={null}>
+        <primitive 
+          object={castleWalls.clone()} 
+          scale={[4, 4, 4]} 
+          position={[0, 0, 20]}
+          rotation={[0, Math.PI, 0]}
+          castShadow
+        />
+      </Suspense>
       
       {/* Decorative pillars at corners */}
       {[
