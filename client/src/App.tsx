@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { KeyboardControls } from "@react-three/drei";
 import { useAudio } from "./lib/stores/useAudio";
 import { useGameState } from "./lib/stores/useGameState";
@@ -16,6 +16,9 @@ import DynamicSoundManager from "./components/game/DynamicSoundManager";
 import CameraEffects from "./components/game/CameraEffects";
 import VictoryExplosion from "./components/game/VictoryExplosion";
 import ScreenEffects from "./components/game/ScreenEffects";
+import AchievementNotification from "./components/game/AchievementNotification";
+import TournamentProgress from "./components/game/TournamentProgress";
+import { useAchievements } from "./lib/stores/useAchievements";
 
 // Define control keys for the game
 enum Controls {
@@ -53,6 +56,21 @@ const keyMap = [
 // Main App component
 function App() {
   const { gamePhase } = useGameState();
+  const { recentUnlocks, markAchievementSeen } = useAchievements();
+  const [currentNotification, setCurrentNotification] = useState<any>(null);
+
+  useEffect(() => {
+    if (recentUnlocks.length > 0 && !currentNotification) {
+      setCurrentNotification(recentUnlocks[0]);
+    }
+  }, [recentUnlocks, currentNotification]);
+
+  const handleNotificationComplete = () => {
+    if (currentNotification) {
+      markAchievementSeen(currentNotification.id);
+      setCurrentNotification(null);
+    }
+  };
 
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
@@ -104,6 +122,15 @@ function App() {
                 
                 {/* Screen effects overlay */}
                 <ScreenEffects />
+
+                {/* Achievement Notification inside Canvas */}
+                <AchievementNotification 
+                  achievement={currentNotification}
+                  onComplete={handleNotificationComplete}
+                />
+
+                {/* Tournament Progress inside Canvas */}
+                <TournamentProgress />
               </Suspense>
             </Canvas>
             <GameUI />

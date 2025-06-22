@@ -7,6 +7,7 @@ import AnimatedCrowd from "./AnimatedCrowd";
 import CrowdSynchronizer from "./CrowdSynchronizer";
 import CrowdReactionManager from "./CrowdReactionManager";
 import CrowdWave from "./CrowdWave";
+import Stadium from "./Stadium";
 
 export default function Arena() {
   const meshRef = useRef<THREE.Mesh>(null);
@@ -34,24 +35,49 @@ export default function Arena() {
     console.log(`Crowd reaction: ${reaction.type} with intensity ${reaction.intensity}`);
   }, []);
 
-  // Define crowd positions for wave effects
+  // Define crowd positions for wave effects - Updated for enhanced stadium layout
   const crowdPositions = [
-    { position: [-12, 2, 8] as [number, number, number], crowdId: 'north-main' },
-    { position: [12, 2, 8] as [number, number, number], crowdId: 'south-main' },
-    { position: [8, 2, -12] as [number, number, number], crowdId: 'east-main' },
-    { position: [-8, 2, -12] as [number, number, number], crowdId: 'west-main' },
-    { position: [-8, 2, 8] as [number, number, number], crowdId: 'northeast' },
-    { position: [8, 2, 8] as [number, number, number], crowdId: 'southeast' },
-    { position: [8, 2, -8] as [number, number, number], crowdId: 'northwest' },
-    { position: [-8, 2, -8] as [number, number, number], crowdId: 'southwest' },
-    { position: [-18, 3, 12] as [number, number, number], crowdId: 'north-stadium' },
-    { position: [18, 3, 12] as [number, number, number], crowdId: 'south-stadium' },
-    { position: [12, 3, -18] as [number, number, number], crowdId: 'east-stadium' },
-    { position: [-12, 3, -18] as [number, number, number], crowdId: 'west-stadium' },
-    { position: [-15, 4, 15] as [number, number, number], crowdId: 'far-northeast' },
-    { position: [15, 4, 15] as [number, number, number], crowdId: 'far-southeast' },
-    { position: [15, 4, -15] as [number, number, number], crowdId: 'far-northwest' },
-    { position: [-15, 4, -15] as [number, number, number], crowdId: 'far-southwest' }
+    // Main Arena Stands - Closest to battle ground
+    { position: [0, 3, -12] as [number, number, number], crowdId: 'north-main-close' },
+    { position: [12, 3, 0] as [number, number, number], crowdId: 'east-main-close' },
+    { position: [-12, 3, 0] as [number, number, number], crowdId: 'west-main-close' },
+    { position: [0, 3, 12] as [number, number, number], crowdId: 'south-main-close' },
+    
+    // Second Tier - Elevated stands
+    { position: [0, 6, -18] as [number, number, number], crowdId: 'north-second-tier' },
+    { position: [18, 6, 0] as [number, number, number], crowdId: 'east-second-tier' },
+    { position: [-18, 6, 0] as [number, number, number], crowdId: 'west-second-tier' },
+    { position: [0, 6, 18] as [number, number, number], crowdId: 'south-second-tier' },
+    
+    // Corner Sections - Diagonal viewing angles
+    { position: [15, 4, -15] as [number, number, number], crowdId: 'northeast-corner' },
+    { position: [-15, 4, -15] as [number, number, number], crowdId: 'northwest-corner' },
+    { position: [15, 4, 15] as [number, number, number], crowdId: 'southeast-corner' },
+    { position: [-15, 4, 15] as [number, number, number], crowdId: 'southwest-corner' },
+    
+    // Third Tier - Upper stands
+    { position: [0, 8, -25] as [number, number, number], crowdId: 'north-upper-tier' },
+    { position: [25, 8, 0] as [number, number, number], crowdId: 'east-upper-tier' },
+    { position: [-25, 8, 0] as [number, number, number], crowdId: 'west-upper-tier' },
+    { position: [0, 8, 25] as [number, number, number], crowdId: 'south-upper-tier' },
+    
+    // VIP Sections - Premium viewing areas
+    { position: [8, 5, -10] as [number, number, number], crowdId: 'north-vip-left' },
+    { position: [-8, 5, -10] as [number, number, number], crowdId: 'north-vip-right' },
+    { position: [10, 5, 8] as [number, number, number], crowdId: 'south-vip-left' },
+    { position: [-10, 5, 8] as [number, number, number], crowdId: 'south-vip-right' },
+    
+    // Distant Stadium Crowds - Background atmosphere
+    { position: [0, 2, -35] as [number, number, number], crowdId: 'north-distant' },
+    { position: [35, 2, 0] as [number, number, number], crowdId: 'east-distant' },
+    { position: [-35, 2, 0] as [number, number, number], crowdId: 'west-distant' },
+    { position: [0, 2, 35] as [number, number, number], crowdId: 'south-distant' },
+    
+    // Far Corner Crowds - Complete stadium atmosphere
+    { position: [30, 1, -30] as [number, number, number], crowdId: 'far-northeast' },
+    { position: [-30, 1, -30] as [number, number, number], crowdId: 'far-northwest' },
+    { position: [30, 1, 30] as [number, number, number], crowdId: 'far-southeast' },
+    { position: [-30, 1, 30] as [number, number, number], crowdId: 'far-southwest' }
   ];
   
   // Load royal battle arena models
@@ -83,6 +109,9 @@ export default function Arena() {
 
   return (
     <group>
+      {/* Stadium Structure */}
+      <Stadium />
+
       {/* Large medieval countryside extending beyond arena */}
       <mesh position={[0, -0.5, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[100, 100]} />
@@ -283,151 +312,46 @@ export default function Arena() {
         />
       </Suspense>
 
-      {/* Animated Cheering Crowd in Main Stands */}
+      {/* Crowd positioned on stadium tiers */}
+      {/* Tier 1 */}
+      {/*
       <Suspense fallback={null}>
-        <AnimatedCrowd
-          position={[0, 5, -22]}
-          scale={[5, 5, 5]}
-          crowdId="north-main"
-        />
+        <AnimatedCrowd position={[0, 2.5, -14]} rotation={[0, 0, 0]} scale={[15, 15, 15]} crowdId="tier1-north" />
+        <AnimatedCrowd position={[0, 2.5, 14]} rotation={[0, Math.PI, 0]} scale={[15, 15, 15]} crowdId="tier1-south" />
+        <AnimatedCrowd position={[-14, 2.5, 0]} rotation={[0, Math.PI / 2, 0]} scale={[15, 15, 15]} crowdId="tier1-west" />
+        <AnimatedCrowd position={[14, 2.5, 0]} rotation={[0, -Math.PI / 2, 0]} scale={[15, 15, 15]} crowdId="tier1-east" />
       </Suspense>
-      
-      <Suspense fallback={null}>
-        <AnimatedCrowd
-          position={[22, 5, 0]}
-          rotation={[0, -Math.PI / 2, 0]}
-          scale={[5, 5, 5]}
-          crowdId="east-main"
-        />
-      </Suspense>
-      
-      <Suspense fallback={null}>
-        <AnimatedCrowd
-          position={[-22, 5, 0]}
-          rotation={[0, Math.PI / 2, 0]}
-          scale={[5, 5, 5]}
-          crowdId="west-main"
-        />
-      </Suspense>
-      
-      <Suspense fallback={null}>
-        <AnimatedCrowd
-          position={[0, 5, 22]}
-          rotation={[0, Math.PI, 0]}
-          scale={[5, 5, 5]}
-          crowdId="south-main"
-        />
-      </Suspense>
+      */}
 
-      {/* Animated Background Crowds */}
+      {/* Tier 2 */}
+      {/*
       <Suspense fallback={null}>
-        <AnimatedCrowd
-          position={[18, 3, -18]}
-          rotation={[0, -Math.PI / 4, 0]}
-          scale={[4, 4, 4]}
-          crowdId="northeast"
-        />
+        <AnimatedCrowd position={[0, 5, -18]} rotation={[0, 0, 0]} scale={[12, 12, 12]} crowdId="tier2-north" />
+        <AnimatedCrowd position={[0, 5, 18]} rotation={[0, Math.PI, 0]} scale={[12, 12, 12]} crowdId="tier2-south" />
+        <AnimatedCrowd position={[-18, 5, 0]} rotation={[0, Math.PI / 2, 0]} scale={[12, 12, 12]} crowdId="tier2-west" />
+        <AnimatedCrowd position={[18, 5, 0]} rotation={[0, -Math.PI / 2, 0]} scale={[12, 12, 12]} crowdId="tier2-east" />
       </Suspense>
-      
-      <Suspense fallback={null}>
-        <AnimatedCrowd
-          position={[-18, 3, -18]}
-          rotation={[0, Math.PI / 4, 0]}
-          scale={[4, 4, 4]}
-          crowdId="northwest"
-        />
-      </Suspense>
-      
-      <Suspense fallback={null}>
-        <AnimatedCrowd
-          position={[18, 3, 18]}
-          rotation={[0, -3 * Math.PI / 4, 0]}
-          scale={[4, 4, 4]}
-          crowdId="southeast"
-        />
-      </Suspense>
-      
-      <Suspense fallback={null}>
-        <AnimatedCrowd
-          position={[-18, 3, 18]}
-          rotation={[0, 3 * Math.PI / 4, 0]}
-          scale={[4, 4, 4]}
-          crowdId="southwest"
-        />
-      </Suspense>
+      */}
 
-      {/* Animated Stadium Crowds in Background */}
+      {/* Tier 3 */}
+      {/*
       <Suspense fallback={null}>
-        <AnimatedCrowd
-          position={[0, 3, -35]}
-          scale={[4, 4, 4]}
-          crowdId="north-stadium"
-        />
+        <AnimatedCrowd position={[0, 7.5, -22]} rotation={[0, 0, 0]} scale={[10, 10, 10]} crowdId="tier3-north" />
+        <AnimatedCrowd position={[0, 7.5, 22]} rotation={[0, Math.PI, 0]} scale={[10, 10, 10]} crowdId="tier3-south" />
+        <AnimatedCrowd position={[-22, 7.5, 0]} rotation={[0, Math.PI / 2, 0]} scale={[10, 10, 10]} crowdId="tier3-west" />
+        <AnimatedCrowd position={[22, 7.5, 0]} rotation={[0, -Math.PI / 2, 0]} scale={[10, 10, 10]} crowdId="tier3-east" />
       </Suspense>
-      
-      <Suspense fallback={null}>
-        <AnimatedCrowd
-          position={[35, 3, 0]}
-          rotation={[0, -Math.PI / 2, 0]}
-          scale={[4, 4, 4]}
-          crowdId="east-stadium"
-        />
-      </Suspense>
-      
-      <Suspense fallback={null}>
-        <AnimatedCrowd
-          position={[-35, 3, 0]}
-          rotation={[0, Math.PI / 2, 0]}
-          scale={[4, 4, 4]}
-          crowdId="west-stadium"
-        />
-      </Suspense>
-      
-      <Suspense fallback={null}>
-        <AnimatedCrowd
-          position={[0, 3, 35]}
-          rotation={[0, Math.PI, 0]}
-          scale={[4, 4, 4]}
-          crowdId="south-stadium"
-        />
-      </Suspense>
+      */}
 
-      {/* Additional Animated Distant Stadium Crowds */}
+      {/* Tier 4 */}
+      {/*
       <Suspense fallback={null}>
-        <AnimatedCrowd
-          position={[25, 2, -25]}
-          rotation={[0, -Math.PI / 4, 0]}
-          scale={[3, 3, 3]}
-          crowdId="far-northeast"
-        />
+        <AnimatedCrowd position={[0, 10, -26]} rotation={[0, 0, 0]} scale={[8, 8, 8]} crowdId="tier4-north" />
+        <AnimatedCrowd position={[0, 10, 26]} rotation={[0, Math.PI, 0]} scale={[8, 8, 8]} crowdId="tier4-south" />
+        <AnimatedCrowd position={[-26, 10, 0]} rotation={[0, Math.PI / 2, 0]} scale={[8, 8, 8]} crowdId="tier4-west" />
+        <AnimatedCrowd position={[26, 10, 0]} rotation={[0, -Math.PI / 2, 0]} scale={[8, 8, 8]} crowdId="tier4-east" />
       </Suspense>
-      
-      <Suspense fallback={null}>
-        <AnimatedCrowd
-          position={[-25, 2, -25]}
-          rotation={[0, Math.PI / 4, 0]}
-          scale={[3, 3, 3]}
-          crowdId="far-northwest"
-        />
-      </Suspense>
-      
-      <Suspense fallback={null}>
-        <AnimatedCrowd
-          position={[25, 2, 25]}
-          rotation={[0, -3 * Math.PI / 4, 0]}
-          scale={[3, 3, 3]}
-          crowdId="far-southeast"
-        />
-      </Suspense>
-      
-      <Suspense fallback={null}>
-        <AnimatedCrowd
-          position={[-25, 2, 25]}
-          rotation={[0, 3 * Math.PI / 4, 0]}
-          scale={[3, 3, 3]}
-          crowdId="far-southwest"
-        />
-      </Suspense>
+      */}
       
       {/* Royal tournament banners at corners - Larger and More Visible */}
       {[

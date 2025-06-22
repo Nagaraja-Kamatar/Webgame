@@ -11,12 +11,20 @@ export default function SoundManager() {
   const lastClappingTime = useRef(0);
 
   useEffect(() => {
-    // Load background music
-    const backgroundAudio = new Audio("/sounds/background.mp3");
+    // Load main royal battle theme
+    const backgroundAudio = new Audio("/sounds/royal_battle_theme.mp3");
     backgroundAudio.preload = "auto";
-    backgroundAudio.volume = 0.2;
+    backgroundAudio.volume = 0.5;
     backgroundAudio.loop = true;
     setBackgroundMusic(backgroundAudio);
+
+    // Load bass layer for epic effect
+    const bassAudio = new Audio("/sounds/royal_battle_bass.mp3");
+    bassAudio.preload = "auto";
+    bassAudio.volume = 0.4;
+    bassAudio.loop = true;
+    // Attach to window for mute management
+    window.royalBattleBass = bassAudio;
 
     // Load hit sound
     const hitAudio = new Audio("/sounds/hit.mp3");
@@ -144,12 +152,14 @@ export default function SoundManager() {
   // Handle background music based on game phase
   useEffect(() => {
     const { backgroundMusic } = useAudio.getState();
-    
+    const bassAudio = window.royalBattleBass;
     if (backgroundMusic) {
       if (gamePhase === 'playing') {
         backgroundMusic.play().catch(e => console.log("Background music autoplay blocked"));
+        if (bassAudio) bassAudio.play().catch(e => {});
       } else {
         backgroundMusic.pause();
+        if (bassAudio) bassAudio.pause();
       }
     }
   }, [gamePhase]);

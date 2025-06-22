@@ -4,7 +4,6 @@ import { useAchievements, Achievement } from "../../lib/stores/useAchievements";
 import { useKeyboardControls } from "@react-three/drei";
 import { useEffect, useState } from "react";
 import AchievementNotification from "./AchievementNotification";
-import TournamentProgress from "./TournamentProgress";
 
 export default function GameUI() {
   const { players, gamePhase, winner, resetGame, showMenu } = useGameState();
@@ -61,20 +60,6 @@ export default function GameUI() {
       }
     }
   }, [gamePhase, winner, playSuccess, updateStats]);
-
-  // Handle achievement notifications
-  useEffect(() => {
-    if (recentUnlocks.length > 0 && !currentNotification) {
-      setCurrentNotification(recentUnlocks[0]);
-    }
-  }, [recentUnlocks, currentNotification]);
-
-  const handleNotificationComplete = () => {
-    if (currentNotification) {
-      markAchievementSeen(currentNotification.id);
-      setCurrentNotification(null);
-    }
-  };
 
   if (gamePhase === 'menu') return null;
 
@@ -196,15 +181,6 @@ export default function GameUI() {
           </div>
         </div>
       )}
-
-      {/* Achievement Notification */}
-      <AchievementNotification 
-        achievement={currentNotification}
-        onComplete={handleNotificationComplete}
-      />
-
-      {/* Tournament Progress Display */}
-      <TournamentProgress />
     </div>
   );
 }
