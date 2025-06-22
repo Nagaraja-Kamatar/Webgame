@@ -12,6 +12,7 @@ import GameUI from "./components/game/GameUI";
 import Menu from "./components/game/Menu";
 import Lights from "./components/game/Lights";
 import SoundManager from "./components/game/SoundManager";
+import DynamicSoundManager from "./components/game/DynamicSoundManager";
 import CameraEffects from "./components/game/CameraEffects";
 import VictoryExplosion from "./components/game/VictoryExplosion";
 import ScreenEffects from "./components/game/ScreenEffects";
@@ -97,6 +98,9 @@ function App() {
                     color="#ffaa00"
                   />
                 )}
+                
+                {/* Dynamic Sound Management */}
+                <DynamicSoundManager />
                 
                 {/* Screen effects overlay */}
                 <ScreenEffects />

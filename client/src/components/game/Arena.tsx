@@ -6,6 +6,7 @@ import EnvironmentEffects from "./EnvironmentEffects";
 import AnimatedCrowd from "./AnimatedCrowd";
 import CrowdSynchronizer from "./CrowdSynchronizer";
 import CrowdReactionManager from "./CrowdReactionManager";
+import CrowdWave from "./CrowdWave";
 
 export default function Arena() {
   const meshRef = useRef<THREE.Mesh>(null);
@@ -32,6 +33,26 @@ export default function Arena() {
     // Broadcast reaction to all specified crowd sections
     console.log(`Crowd reaction: ${reaction.type} with intensity ${reaction.intensity}`);
   }, []);
+
+  // Define crowd positions for wave effects
+  const crowdPositions = [
+    { position: [-12, 2, 8] as [number, number, number], crowdId: 'north-main' },
+    { position: [12, 2, 8] as [number, number, number], crowdId: 'south-main' },
+    { position: [8, 2, -12] as [number, number, number], crowdId: 'east-main' },
+    { position: [-8, 2, -12] as [number, number, number], crowdId: 'west-main' },
+    { position: [-8, 2, 8] as [number, number, number], crowdId: 'northeast' },
+    { position: [8, 2, 8] as [number, number, number], crowdId: 'southeast' },
+    { position: [8, 2, -8] as [number, number, number], crowdId: 'northwest' },
+    { position: [-8, 2, -8] as [number, number, number], crowdId: 'southwest' },
+    { position: [-18, 3, 12] as [number, number, number], crowdId: 'north-stadium' },
+    { position: [18, 3, 12] as [number, number, number], crowdId: 'south-stadium' },
+    { position: [12, 3, -18] as [number, number, number], crowdId: 'east-stadium' },
+    { position: [-12, 3, -18] as [number, number, number], crowdId: 'west-stadium' },
+    { position: [-15, 4, 15] as [number, number, number], crowdId: 'far-northeast' },
+    { position: [15, 4, 15] as [number, number, number], crowdId: 'far-southeast' },
+    { position: [15, 4, -15] as [number, number, number], crowdId: 'far-northwest' },
+    { position: [-15, 4, -15] as [number, number, number], crowdId: 'far-southwest' }
+  ];
   
   // Load royal battle arena models
   const { scene: arenaFloor } = useGLTF("/models/royal_arena_floor.glb");
@@ -524,6 +545,9 @@ export default function Arena() {
       
       {/* Crowd Reaction Management */}
       <CrowdReactionManager onReactionTrigger={handleReactionTrigger} />
+      
+      {/* Crowd Wave Effects */}
+      <CrowdWave crowdPositions={crowdPositions} />
       
       {/* Background warp effect */}
       <WarpEffect />

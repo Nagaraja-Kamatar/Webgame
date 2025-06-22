@@ -1,12 +1,17 @@
 import { useGameState } from "../../lib/stores/useGameState";
 import { useAudio } from "../../lib/stores/useAudio";
+import { useAchievements, Achievement } from "../../lib/stores/useAchievements";
 import { useKeyboardControls } from "@react-three/drei";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import AchievementNotification from "./AchievementNotification";
+import TournamentProgress from "./TournamentProgress";
 
 export default function GameUI() {
   const { players, gamePhase, winner, resetGame, showMenu } = useGameState();
   const { isMuted, toggleMute, playSuccess } = useAudio();
+  const { recentUnlocks, markAchievementSeen, updateStats } = useAchievements();
   const [subscribe, get] = useKeyboardControls();
+  const [currentNotification, setCurrentNotification] = useState<any>(null);
   
   useEffect(() => {
     const handleKeyPress = () => {
@@ -39,8 +44,37 @@ export default function GameUI() {
   useEffect(() => {
     if (gamePhase === 'ended' && winner) {
       playSuccess();
+      
+      // Update tournament stats on game end
+      const isWinner = winner === 1 || winner === 2;
+      if (isWinner) {
+        updateStats({
+          gamesPlayed: 1,
+          gamesWon: 1,
+          currentWinStreak: 1
+        });
+      } else {
+        updateStats({
+          gamesPlayed: 1,
+          currentWinStreak: 0
+        });
+      }
     }
-  }, [gamePhase, winner, playSuccess]);
+  }, [gamePhase, winner, playSuccess, updateStats]);
+
+  // Handle achievement notifications
+  useEffect(() => {
+    if (recentUnlocks.length > 0 && !currentNotification) {
+      setCurrentNotification(recentUnlocks[0]);
+    }
+  }, [recentUnlocks, currentNotification]);
+
+  const handleNotificationComplete = () => {
+    if (currentNotification) {
+      markAchievementSeen(currentNotification.id);
+      setCurrentNotification(null);
+    }
+  };
 
   if (gamePhase === 'menu') return null;
 
@@ -162,6 +196,15 @@ export default function GameUI() {
           </div>
         </div>
       )}
+
+      {/* Achievement Notification */}
+      <AchievementNotification 
+        achievement={currentNotification}
+        onComplete={handleNotificationComplete}
+      />
+
+      {/* Tournament Progress Display */}
+      <TournamentProgress />
     </div>
   );
 }

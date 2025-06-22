@@ -4,6 +4,7 @@ import { useKeyboardControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 import { useGameState } from "../../lib/stores/useGameState";
 import { useAudio } from "../../lib/stores/useAudio";
+import { useAchievements } from "../../lib/stores/useAchievements";
 import { checkSphereCollision, keepInSquareBounds, resolveCollision } from "../../lib/collision";
 import DodgeEffect from "./DodgeEffect";
 import ParticleTrail from "./ParticleTrail";
@@ -19,6 +20,17 @@ export default function Player({ playerId }: PlayerProps) {
   const groupRef = useRef<THREE.Group>(null);
   const { players, updatePlayerPosition, updatePlayerVelocity, incrementScore, lastCollision, setLastCollision, gamePhase, dodgeEffects, triggerDodgeEffect } = useGameState();
   const { playHit, playDodge } = useAudio();
+  const { updateStats } = useAchievements();
+  
+  const gameMetrics = useRef({
+    gameStartTime: 0,
+    consecutiveHits: 0,
+    consecutiveHitStreak: 0,
+    dodgeCount: 0,
+    hitCount: 0,
+    perfectGame: true,
+    wasBehind: false
+  });
   const [subscribe, get] = useKeyboardControls();
   
   // Load the knight character model for both players
