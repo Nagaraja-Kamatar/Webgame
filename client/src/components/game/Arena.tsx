@@ -17,12 +17,14 @@ export default function Arena() {
   // Load additional royal battle models
   const { scene: tournamentPavilions } = useGLTF("/models/tournament_pavilions.glb");
   const { scene: cheeringCrowd } = useGLTF("/models/cheering_crowd.glb");
+  const { scene: stadiumCrowd } = useGLTF("/models/stadium_crowd.glb");
   
   // Preload models for better performance
   useGLTF.preload("/models/royal_arena_floor.glb");
   useGLTF.preload("/models/castle_walls.glb");
   useGLTF.preload("/models/tournament_pavilions.glb");
   useGLTF.preload("/models/cheering_crowd.glb");
+  useGLTF.preload("/models/stadium_crowd.glb");
   
   // Configure arena floor texture
   asphaltTexture.wrapS = asphaltTexture.wrapT = THREE.RepeatWrapping;
@@ -58,7 +60,7 @@ export default function Arena() {
       }>
         <primitive 
           object={arenaFloor.clone()} 
-          scale={[3, 1, 3]} 
+          scale={[5, 2, 5]} 
           position={[0, 0, 0]}
           receiveShadow
           castShadow
@@ -156,12 +158,12 @@ export default function Arena() {
         />
       </mesh>
       
-      {/* Castle Walls Background */}
+      {/* Castle Walls Background - Larger and More Visible */}
       <Suspense fallback={null}>
         <primitive 
           object={castleWalls.clone()} 
-          scale={[4, 4, 4]} 
-          position={[0, 0, -20]}
+          scale={[6, 6, 6]} 
+          position={[0, 0, -25]}
           castShadow
         />
       </Suspense>
@@ -170,8 +172,8 @@ export default function Arena() {
       <Suspense fallback={null}>
         <primitive 
           object={castleWalls.clone()} 
-          scale={[4, 4, 4]} 
-          position={[20, 0, 0]}
+          scale={[6, 6, 6]} 
+          position={[25, 0, 0]}
           rotation={[0, Math.PI / 2, 0]}
           castShadow
         />
@@ -180,8 +182,8 @@ export default function Arena() {
       <Suspense fallback={null}>
         <primitive 
           object={castleWalls.clone()} 
-          scale={[4, 4, 4]} 
-          position={[-20, 0, 0]}
+          scale={[6, 6, 6]} 
+          position={[-25, 0, 0]}
           rotation={[0, -Math.PI / 2, 0]}
           castShadow
         />
@@ -190,19 +192,19 @@ export default function Arena() {
       <Suspense fallback={null}>
         <primitive 
           object={castleWalls.clone()} 
+          scale={[6, 6, 6]} 
+          position={[0, 0, 25]}
+          rotation={[0, Math.PI, 0]}
+          castShadow
+        />
+      </Suspense>
+
+      {/* Tournament Pavilions - Larger and More Prominent */}
+      <Suspense fallback={null}>
+        <primitive 
+          object={tournamentPavilions.clone()} 
           scale={[4, 4, 4]} 
-          position={[0, 0, 20]}
-          rotation={[0, Math.PI, 0]}
-          castShadow
-        />
-      </Suspense>
-
-      {/* Tournament Pavilions */}
-      <Suspense fallback={null}>
-        <primitive 
-          object={tournamentPavilions.clone()} 
-          scale={[2, 2, 2]} 
-          position={[15, 0, 15]}
+          position={[18, 0, 18]}
           castShadow
         />
       </Suspense>
@@ -210,8 +212,8 @@ export default function Arena() {
       <Suspense fallback={null}>
         <primitive 
           object={tournamentPavilions.clone()} 
-          scale={[2, 2, 2]} 
-          position={[-15, 0, 15]}
+          scale={[4, 4, 4]} 
+          position={[-18, 0, 18]}
           rotation={[0, -Math.PI / 2, 0]}
           castShadow
         />
@@ -220,8 +222,8 @@ export default function Arena() {
       <Suspense fallback={null}>
         <primitive 
           object={tournamentPavilions.clone()} 
-          scale={[2, 2, 2]} 
-          position={[15, 0, -15]}
+          scale={[4, 4, 4]} 
+          position={[18, 0, -18]}
           rotation={[0, Math.PI / 2, 0]}
           castShadow
         />
@@ -230,19 +232,19 @@ export default function Arena() {
       <Suspense fallback={null}>
         <primitive 
           object={tournamentPavilions.clone()} 
-          scale={[2, 2, 2]} 
-          position={[-15, 0, -15]}
+          scale={[4, 4, 4]} 
+          position={[-18, 0, -18]}
           rotation={[0, Math.PI, 0]}
           castShadow
         />
       </Suspense>
 
-      {/* Cheering Crowd in Stands */}
+      {/* Cheering Crowd in Stands - Much Larger and More Visible */}
       <Suspense fallback={null}>
         <primitive 
           object={cheeringCrowd.clone()} 
-          scale={[1.5, 1.5, 1.5]} 
-          position={[0, 3, -16]}
+          scale={[3, 3, 3]} 
+          position={[0, 4, -20]}
           castShadow
         />
       </Suspense>
@@ -250,8 +252,8 @@ export default function Arena() {
       <Suspense fallback={null}>
         <primitive 
           object={cheeringCrowd.clone()} 
-          scale={[1.5, 1.5, 1.5]} 
-          position={[16, 3, 0]}
+          scale={[3, 3, 3]} 
+          position={[20, 4, 0]}
           rotation={[0, -Math.PI / 2, 0]}
           castShadow
         />
@@ -260,8 +262,8 @@ export default function Arena() {
       <Suspense fallback={null}>
         <primitive 
           object={cheeringCrowd.clone()} 
-          scale={[1.5, 1.5, 1.5]} 
-          position={[-16, 3, 0]}
+          scale={[3, 3, 3]} 
+          position={[-20, 4, 0]}
           rotation={[0, Math.PI / 2, 0]}
           castShadow
         />
@@ -270,30 +272,161 @@ export default function Arena() {
       <Suspense fallback={null}>
         <primitive 
           object={cheeringCrowd.clone()} 
-          scale={[1.5, 1.5, 1.5]} 
-          position={[0, 3, 16]}
+          scale={[3, 3, 3]} 
+          position={[0, 4, 20]}
           rotation={[0, Math.PI, 0]}
           castShadow
         />
       </Suspense>
+
+      {/* Additional Background Crowds */}
+      <Suspense fallback={null}>
+        <primitive 
+          object={cheeringCrowd.clone()} 
+          scale={[2.5, 2.5, 2.5]} 
+          position={[15, 2, -15]}
+          rotation={[0, -Math.PI / 4, 0]}
+          castShadow
+        />
+      </Suspense>
       
-      {/* Royal tournament banners at corners */}
+      <Suspense fallback={null}>
+        <primitive 
+          object={cheeringCrowd.clone()} 
+          scale={[2.5, 2.5, 2.5]} 
+          position={[-15, 2, -15]}
+          rotation={[0, Math.PI / 4, 0]}
+          castShadow
+        />
+      </Suspense>
+      
+      <Suspense fallback={null}>
+        <primitive 
+          object={cheeringCrowd.clone()} 
+          scale={[2.5, 2.5, 2.5]} 
+          position={[15, 2, 15]}
+          rotation={[0, -3 * Math.PI / 4, 0]}
+          castShadow
+        />
+      </Suspense>
+      
+      <Suspense fallback={null}>
+        <primitive 
+          object={cheeringCrowd.clone()} 
+          scale={[2.5, 2.5, 2.5]} 
+          position={[-15, 2, 15]}
+          rotation={[0, 3 * Math.PI / 4, 0]}
+          castShadow
+        />
+      </Suspense>
+
+      {/* Massive Stadium Crowds in Background */}
+      <Suspense fallback={null}>
+        <primitive 
+          object={stadiumCrowd.clone()} 
+          scale={[4, 4, 4]} 
+          position={[0, 3, -35]}
+          castShadow
+        />
+      </Suspense>
+      
+      <Suspense fallback={null}>
+        <primitive 
+          object={stadiumCrowd.clone()} 
+          scale={[4, 4, 4]} 
+          position={[35, 3, 0]}
+          rotation={[0, -Math.PI / 2, 0]}
+          castShadow
+        />
+      </Suspense>
+      
+      <Suspense fallback={null}>
+        <primitive 
+          object={stadiumCrowd.clone()} 
+          scale={[4, 4, 4]} 
+          position={[-35, 3, 0]}
+          rotation={[0, Math.PI / 2, 0]}
+          castShadow
+        />
+      </Suspense>
+      
+      <Suspense fallback={null}>
+        <primitive 
+          object={stadiumCrowd.clone()} 
+          scale={[4, 4, 4]} 
+          position={[0, 3, 35]}
+          rotation={[0, Math.PI, 0]}
+          castShadow
+        />
+      </Suspense>
+
+      {/* Additional Distant Stadium Crowds */}
+      <Suspense fallback={null}>
+        <primitive 
+          object={stadiumCrowd.clone()} 
+          scale={[3, 3, 3]} 
+          position={[25, 2, -25]}
+          rotation={[0, -Math.PI / 4, 0]}
+          castShadow
+        />
+      </Suspense>
+      
+      <Suspense fallback={null}>
+        <primitive 
+          object={stadiumCrowd.clone()} 
+          scale={[3, 3, 3]} 
+          position={[-25, 2, -25]}
+          rotation={[0, Math.PI / 4, 0]}
+          castShadow
+        />
+      </Suspense>
+      
+      <Suspense fallback={null}>
+        <primitive 
+          object={stadiumCrowd.clone()} 
+          scale={[3, 3, 3]} 
+          position={[25, 2, 25]}
+          rotation={[0, -3 * Math.PI / 4, 0]}
+          castShadow
+        />
+      </Suspense>
+      
+      <Suspense fallback={null}>
+        <primitive 
+          object={stadiumCrowd.clone()} 
+          scale={[3, 3, 3]} 
+          position={[-25, 2, 25]}
+          rotation={[0, 3 * Math.PI / 4, 0]}
+          castShadow
+        />
+      </Suspense>
+      
+      {/* Royal tournament banners at corners - Larger and More Visible */}
       {[
-        [12, 12], [-12, 12], [12, -12], [-12, -12]
+        [15, 15], [-15, 15], [15, -15], [-15, -15]
       ].map(([x, z], i) => (
         <group key={i} position={[x, 0, z]}>
           {/* Banner pole */}
-          <mesh position={[0, 4, 0]} castShadow receiveShadow>
-            <cylinderGeometry args={[0.1, 0.1, 8]} />
+          <mesh position={[0, 6, 0]} castShadow receiveShadow>
+            <cylinderGeometry args={[0.2, 0.2, 12]} />
             <meshStandardMaterial color="#8B4513" />
           </mesh>
           {/* Royal banner */}
-          <mesh position={[0.5, 6, 0]} castShadow>
-            <planeGeometry args={[1.5, 2]} />
+          <mesh position={[1, 9, 0]} castShadow>
+            <planeGeometry args={[3, 4]} />
             <meshStandardMaterial 
               color={i % 2 === 0 ? "#4169e1" : "#dc143c"} 
               transparent 
               opacity={0.9}
+            />
+          </mesh>
+          {/* Banner decoration */}
+          <mesh position={[1, 9, 0.1]} castShadow>
+            <planeGeometry args={[1, 1]} />
+            <meshStandardMaterial 
+              color="#ffd700" 
+              transparent 
+              opacity={0.8}
             />
           </mesh>
         </group>

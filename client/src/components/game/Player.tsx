@@ -205,8 +205,8 @@ export default function Player({ playerId }: PlayerProps) {
   // Clone the scene to avoid sharing between instances
   const clonedScene = scene.clone();
   
-  // Scale the avatar appropriately for the game
-  clonedScene.scale.setScalar(2.5);
+  // Scale the knight character larger for better visibility
+  clonedScene.scale.setScalar(3.5);
   
   // Ensure the avatar has proper materials and colors
   clonedScene.traverse((child) => {
